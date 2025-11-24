@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Cards</title>
+
+    <style>
+        /* Сброс стандартных отступов и настройка основного шрифта */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Стили для body - центрирование и фон */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Современный шрифт */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Градиентный фон */
+            min-height: 100vh; /* Минимальная высота на весь экран */
+            display: flex; /* Flexbox для центрирования */
+            justify-content: center; /* Центрирование по горизонтали */
+            align-items: center; /* Центрирование по вертикали */
+            padding: 20px; /* Отступы по краям */
+        }
+
+        /* Контейнер для карточек с адаптивной сеткой */
+        .cards-container {
+            display: grid; /* CSS Grid для сетки */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Адаптивные колонки */
+            gap: 30px; /* Расстояние между карточками */
+            max-width: 1400px; /* Максимальная ширина контейнера */
+            width: 100%; /* Ширина 100% */
+        }
+
+        /* Основные стили карточки */
+        .card {
+            background: rgba(255, 255, 255, 0.95); /* Полупрозрачный белый фон */
+            backdrop-filter: blur(10px); /* Размытие фона для стеклянного эффекта */
+            border-radius: 20px; /* Закругленные углы */
+            padding: 30px; /* Внутренние отступы */
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); /* Тень для глубины */
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Плавная анимация */
+            border: 1px solid rgba(255, 255, 255, 0.2); /* Тонкая граница */
+            position: relative; /* Для псевдоэлементов */
+            overflow: hidden; /* Скрытие выходящего за границы контента */
+        }
+
+        /* Псевдоэлемент для градиентной полосы сверху */
+        .card::before {
+            content: ''; /* Обязательно для псевдоэлементов */
+            position: absolute; /* Абсолютное позиционирование */
+            top: 0; /* Вверху */
+            left: 0; /* Слева */
+            width: 100%; /* На всю ширину */
+            height: 4px; /* Высота полосы */
+            background: linear-gradient(90deg, #667eea, #764ba2); /* Градиент */
+            transition: height 0.3s ease; /* Анимация высоты */
+        }
+
+        /* Эффекты при наведении на карточку */
+        .card:hover {
+            transform: translateY(-15px) scale(1.02); /* Подъем и увеличение */
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); /* Усиленная тень */
+            background: rgba(255, 255, 255, 1); /* Полностью белый фон при наведении */
+        }
+
+        /* Увеличение градиентной полосы при наведении */
+        .card:hover::before {
+            height: 6px; /* Увеличение высоты полосы */
+        }
+
+        /* Стили для посещенных карточек */
+        .card:visited {
+            background: rgba(245, 247, 250, 0.9); /* Слегка затемненный фон */
+            border-color: rgba(102, 126, 234, 0.3); /* Изменение цвета границы */
+        }
+
+        /* Изменение тени у посещенных карточек */
+        .card:visited:hover {
+            background: rgba(255, 255, 255, 0.95); /* Возврат белого фона при наведении */
+        }
+
+        /* Контейнер для фото пользователя */
+        .card__image-container {
+            width: 150px; /* Фиксированная ширина */
+            height: 150px; /* Фиксированная высота */
+            margin: 0 auto 25px; /* Центрирование и отступ снизу */
+            position: relative; /* Для псевдоэлементов */
+        }
+
+        /* Стили самого изображения */
+        .card__image {
+            width: 100%; /* Заполнение контейнера */
+            height: 100%; /* Заполнение контейнера */
+            border-radius: 50%; /* Круглая форма */
+            object-fit: cover; /* Обрезка и заполнение */
+            border: 5px solid #f0f2f5; /* Рамка вокруг фото */
+            transition: all 0.4s ease; /* Плавные переходы */
+            filter: grayscale(20%); /* Легкое обесцвечивание */
+        }
+
+        /* Эффекты при наведении на изображение */
+        .card:hover .card__image {
+            border-color: #667eea; /* Изменение цвета рамки */
+            transform: scale(1.1) rotate(5deg); /* Увеличение и поворот */
+            filter: grayscale(0%); /* Полное цветное изображение */
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3); /* Тень вокруг фото */
+        }
+
+        /* Стили для имени пользователя */
+        .card__name {
+            font-size: 24px; /* Размер шрифта */
+            font-weight: 700; /* Жирное начертание */
+            text-align: center; /* Выравнивание по центру */
+            margin: 0 0 20px; /* Отступы */
+            color: #2d3748; /* Цвет текста */
+            transition: color 0.3s ease; /* Плавное изменение цвета */
+        }
+
+        /* Изменение цвета имени при наведении на карточку */
+        .card:hover .card__name {
+            color: #667eea; /* Основной цвет акцента */
+            text-shadow: 0 2px 10px rgba(102, 126, 234, 0.2); /* Тень текста */
+        }
+
+        /* Общие стили для информации пользователя */
+        .card__info {
+            color: #718096; /* Цвет текста информации */
+            margin: 15px 0; /* Отступы сверху и снизу */
+            padding-left: 35px; /* Отступ слева для иконок */
+            position: relative; /* Для позиционирования иконок */
+            transition: all 0.3s ease; /* Плавные переходы */
+            line-height: 1.5; /* Межстрочный интервал */
+        }
+
+        /* Эффекты при наведении на элементы информации */
+        .card__info:hover {
+            color: #4a5568; /* Более темный цвет */
+            transform: translateX(10px); /* Сдвиг вправо */
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Тень текста */
+        }
+
+        /* Псевдоэлементы для иконок перед информацией */
+        .card__info::before {
+            content: ''; /* Обязательно для псевдоэлементов */
+            position: absolute; /* Абсолютное позиционирование */
+            left: 0; /* Слева */
+            top: 50%; /* По вертикали по центру */
+            transform: translateY(-50%); /* Центрирование по вертикали */
+            width: 24px; /* Ширина иконки */
+            height: 24px; /* Высота иконки */
+            background-size: contain; /* Размер фонового изображения */
+            background-repeat: no-repeat; /* Запрет повторения */
+            transition: all 0.3s ease; /* Плавные переходы */
+        }
+
+        /* Конкретные иконки для каждого типа информации */
+        .card__email::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236670ea"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>');
+        }
+
+        .card__birthday::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236670ea"><path d="M20 3h-1V1h-2v2H7V1H5v2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13z"/></svg>');
+        }
+
+        .card__city::before {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%236670ea"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>');
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr; /* Одна колонка на мобильных */
+                gap: 20px; /* Меньшее расстояние между карточками */
+            }
+
+            .card {
+                padding: 20px; /* Меньшие отступы */
+            }
+
+            .card__image-container {
+                width: 120px; /* Меньший размер фото */
+                height: 120px;
+            }
+
+            .card__name {
+                font-size: 20px; /* Меньший размер шрифта */
+            }
+        }
+
+        /* Адаптивность для очень маленьких экранов */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px; /* Меньшие отступы body */
+            }
+
+            .card {
+                padding: 15px; /* Еще меньшие отступы карточки */
+            }
+
+            .card__image-container {
+                width: 100px; /* Еще меньший размер фото */
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Основной контейнер для всех карточек -->
+    <div class="cards-container">
+
+        <!-- Карточка пользователя 1 -->
+        <div class="card">
+            <div class="card__image-container">
+                <!-- Фото пользователя - замените на локальный файл -->
+                <img src="user1.jpg" alt="Фото пользователя" class="card__image">
+            </div>
+            <!-- ФИО пользователя -->
+            <h2 class="card__name">Анна Иванова</h2>
+            <!-- Электронная почта -->
+            <p class="card__info card__email">anna.ivanova@example.com</p>
+            <!-- Дата рождения -->
+            <p class="card__info card__birthday">15.03.1992</p>
+            <!-- Город -->
+            <p class="card__info card__city">Москва</p>
+        </div>
+
+        <!-- Карточка пользователя 2 -->
+        <div class="card">
+            <div class="card__image-container">
+                <!-- Фото пользователя - замените на локальный файл -->
+                <img src="user2.jpg" alt="Фото пользователя" class="card__image">
+            </div>
+            <!-- ФИО пользователя -->
+            <h2 class="card__name">Максим Петров</h2>
+            <!-- Электронная почта -->
+            <p class="card__info card__email">m.petrov@example.com</p>
+            <!-- Дата рождения -->
+            <p class="card__info card__birthday">28.07.1988</p>
+            <!-- Город -->
+            <p class="card__info card__city">Санкт-Петербург</p>
+        </div>
+
+        <!-- Карточка пользователя 3 -->
+        <div class="card">
+            <div class="card__image-container">
+                <!-- Фото пользователя - замените на локальный файл -->
+                <img src="user3.jpg" alt="Фото пользователя" class="card__image">
+            </div>
+            <!-- ФИО пользователя -->
+            <h2 class="card__name">Екатерина Смирнова</h2>
+            <!-- Электронная почта -->
+            <p class="card__info card__email">smirnova.e@example.com</p>
+            <!-- Дата рождения -->
+            <p class="card__info card__birthday">03.11.1995</p>
+            <!-- Город -->
+            <p class="card__info card__city">Казань</p>
+        </div>
+
+        <!-- Карточка пользователя 4 -->
+        <div class="card">
+            <div class="card__image-container">
+                <!-- Фото пользователя - замените на локальный файл -->
+                <img src="user4.jpg" alt="Фото пользователя" class="card__image">
+            </div>
+            <!-- ФИО пользователя -->
+            <h2 class="card__name">Дмитрий Козлов</h2>
+            <!-- Электронная почта -->
+            <p class="card__info card__email">d.kozlov@example.com</p>
+            <!-- Дата рождения -->
+            <p class="card__info card__birthday">22.05.1990</p>
+            <!-- Город -->
+            <p class="card__info card__city">Новосибирск</p>
+        </div>
+
+    </div>
+</body>
+</html>
